@@ -43,7 +43,6 @@ int __cdecl main(void)
     hints.ai_protocol = IPPROTO_TCP;
     hints.ai_flags = AI_PASSIVE;
 
-    // Resolve the server address and port
     iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
     if (iResult != 0) {
         printf("getaddrinfo failed with error: %d\n", iResult);
@@ -51,7 +50,6 @@ int __cdecl main(void)
         return 1;
     }
     
-    // Create a SOCKET for the server to listen for client connections.
     ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
     if (ListenSocket == INVALID_SOCKET) {
         printf("socket failed with error: %ld\n", WSAGetLastError());
@@ -60,7 +58,6 @@ int __cdecl main(void)
         return 1;
     }
 
-    // Setup the TCP listening socket
     iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
     if (iResult == SOCKET_ERROR) {
         printf("bind failed with error: %d\n", WSAGetLastError());
@@ -80,7 +77,6 @@ int __cdecl main(void)
         return 1;
     }
 
-    // Accept a client socket
     ClientSocket = accept(ListenSocket, NULL, NULL);
     if (ClientSocket == INVALID_SOCKET) {
         printf("accept failed with error: %d\n", WSAGetLastError());
@@ -89,10 +85,8 @@ int __cdecl main(void)
         return 1;
     }
 
-    // No longer need server socket
     closesocket(ListenSocket);
 
-    // Receive until the peer shuts down the connection
     do {
 
         iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
@@ -120,7 +114,6 @@ int __cdecl main(void)
 
     } while (iResult > 0);
 
-    // shutdown the connection since we're done
     iResult = shutdown(ClientSocket, SD_SEND);
     if (iResult == SOCKET_ERROR) {
         printf("shutdown failed with error: %d\n", WSAGetLastError());
